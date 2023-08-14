@@ -26,9 +26,13 @@ namespace kryon_graphology_challenge
             //                       \______/                     
 
             // TODO: STAGE 1 - read and understand what this code is suppose to do //
-            string[] paths = { "demo-image-1.jpeg" };
 
-            foreach (string path in paths) {
+            Console.WriteLine("This code suppose to read image files and output the text in them.");
+
+            string[] paths = { "demo-image-1.jpeg", "demo-image-2.jpeg", "demo-image-3.jpeg", "demo-image-4.jpeg", "demo-image-5.jpeg" };
+
+            foreach (string path in paths)
+            {
                 Console.WriteLine("\nReading challenge file " + path + "...\n");
                 var process = HandwritingAnalyzer.ReadHandwrittenText("./Image-files/" + path);
                 process.Wait();
@@ -37,11 +41,22 @@ namespace kryon_graphology_challenge
                 // WANT TO ANALYZE HUGE AMOUNTS OF TEXT 
                 // AND UTILIZE IT TO PARTICIPATE THE NEXT
                 // INDUSTRIAL REVOLUTION? 
-                Console.WriteLine(result.ToString());
+                Console.WriteLine((result is null
+                                    || (result.Type == JTokenType.Object && !result["recognitionResults"].HasValues)
+                                    || result["recognitionResults"] is null
+                                    || (result["recognitionResults"].Type == JTokenType.Array && !result["recognitionResults"].HasValues))
+                                        ? $"Text wasn't recongnized in file {path}."
+                                        : string.Join("\r\n", result["recognitionResults"]
+                                                                .Where(recognitionResult => recognitionResult["lines"] != null
+                                                                                            && recognitionResult["lines"].Type == JTokenType.Array && recognitionResult["lines"].HasValues)
+                                                                .SelectMany(recognitionResult => recognitionResult["lines"])
+                                                                .Where(line => line["text"] != null && line["text"].Type == JTokenType.String)
+                                                                .Select(line => line["text"])));
             }
 
             // TODO: STAGE 3 - find the connections between the outputs above //
             Console.WriteLine("\nCan you find the connection between the outputs above?");
+            Console.WriteLine("\nThese figures were contemporaries during a time of significant global changes. Each of them recognized the need for change and innovation in their societies, whether through adapting to European models, fighting for independence and self-governance, or pursuing enlightenment ideals to shape the future of their nations.");
 
             // TODO: STAGE 4 - submit your answers, repo and CV, and join us for a cup of coffee //
             Console.WriteLine("\nSend us your solution with the github repo and your CV to challenge@kryonsystems.com and wait for our call!\n");
